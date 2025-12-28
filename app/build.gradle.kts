@@ -41,19 +41,35 @@ android {
 }
 
 dependencies {
-
+    // UI Dasar & Compose
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+// ... inside dependencies block
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
+// ...
+
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    implementation(libs.firebase.auth)
+
+    // Autentikasi & Kredensial (Google Sign-In)
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
+
+    // --- FIREBASE SECTION (Gunakan BoM agar versi seragam) ---
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
+
+    // Image Loading & Navigation
+    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation("androidx.navigation:navigation-compose:2.8.5")
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -62,16 +78,14 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    implementation(platform("com.google.firebase:firebase-bom:34.7.0"))
+implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
 
-    // Library Firebase yang dibutuhkan
-    implementation("com.google.firebase:firebase-auth-ktx")
-    implementation("com.google.firebase:firebase-firestore-ktx")
-    implementation("com.google.firebase:firebase-storage-ktx")
+    // Panggil library tanpa versi (karena sudah diatur BoM)
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
 
-    // Image Loading (untuk menampilkan foto dari Firebase)
+    // Image Loading & Navigation
     implementation("io.coil-kt:coil-compose:2.7.0")
-
-    // Navigation Compose
-    implementation("androidx.navigation:navigation-compose:2.9.6")
+    implementation("androidx.navigation:navigation-compose:2.8.5")
 }
