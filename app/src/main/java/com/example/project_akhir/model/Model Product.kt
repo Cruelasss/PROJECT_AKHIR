@@ -1,10 +1,13 @@
 package com.example.project_akhir.model
 
-// Simpan di package com.example.project_akhir.model
-data class User(
-    val uid: String = "",          // Menggantikan user_id UUID
-    val email: String = "",        //
-    val full_name: String = "",    //
-    val phone_number: String = "", //
-    val is_verified: Boolean = false //
+
+data class Product(
+    val productId: String = "",    // Menggantikan item_id
+    val sellerId: String = "",     // Referensi ke User UID
+    val title: String = "",        //
+    val description: String = "",  //
+    val price: Double = 0.0,       //
+    val condition: String = "",    // Baru/Bekas/Rusak
+    val city_location: String = "",//
+    val images: List<String> = emptyList() // Menggantikan tabel Item_Images (C.3)
 )
