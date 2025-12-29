@@ -103,12 +103,13 @@ fun AddProductScreen(onSuccess: () -> Unit) {
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        if (imageUri == null) {
-                            Toast.makeText(context, "Pilih foto dulu!", Toast.LENGTH_SHORT).show()
+                        if (imageUri == null || title.isEmpty() || price.isEmpty()) {
+                            Toast.makeText(context, "Lengkapi data dan foto!", Toast.LENGTH_SHORT).show()
                             return@Button
                         }
                         isLoading = true
 
+                        // Upload ke Firebase Storage
                         val storageRef = FirebaseStorage.getInstance().reference.child("images/${UUID.randomUUID()}")
 
                         // Memulai upload dengan Task Listener
