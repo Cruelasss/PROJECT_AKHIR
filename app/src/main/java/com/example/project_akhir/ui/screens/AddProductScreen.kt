@@ -40,9 +40,13 @@ fun AddProductScreen(onSuccess: () -> Unit) {
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? -> imageUri = uri }
 
-    Scaffold(topBar = { TopAppBar(title = { Text("Pasang Iklan") }) }) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding).padding(16.dp).verticalScroll(rememberScrollState())) {
-
+    Scaffold(topBar = { TopAppBar(title = { Text("Pasang Iklan BekasinAja") }) }) { innerPadding ->
+        Column(modifier = Modifier
+            .padding(innerPadding)
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
+        ) {
+            // Pemilihan File
             Button(onClick = { launcher.launch("*/*") }) {
                 Text(if (imageUri == null) "Pilih File dari Explorer" else "File Terpilih")
             }
