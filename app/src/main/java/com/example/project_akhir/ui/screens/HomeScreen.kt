@@ -74,21 +74,53 @@ fun HomeScreen(
             }
         }
     ) { innerPadding ->
-        // Menggunakan Grid 2 Kolom agar tampilan lebih menarik
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentPadding = PaddingValues(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(productList) { product ->
-                ProductGridItem(
-                    product = product,
-                    onClick = { onProductClick(product.productId) }
-                )
+        Column(modifier = Modifier.padding(innerPadding)) {
+
+            // 1. Bar Pencarian
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp, 8.dp),
+                placeholder = { Text("Cari barang bekas...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                shape = MaterialTheme.shapes.medium,
+                singleLine = true
+            )
+
+            // 2. Filter Lokasi (Horizontal Scrollable Chips)
+            ScrollableTabRow(
+                selectedTabIndex = locations.indexOf(selectedLocation),
+                edgePadding = 16.dp,
+                containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                divider = {},
+                indicator = {}
+            ) {
+                locations.forEach { location ->
+                    FilterChip(
+                        selected = selectedLocation == location,
+                        onClick = { selectedLocation = location },
+                        label = { Text(location) },
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                }
+            }
+
+            // 3. Grid Katalog Produk
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(filteredProducts) { product ->
+                    ProductGridItem(
+                        product = product,
+                        onClick = { onProductClick(product.productId) }
+                    )
+                }
             }
         }
     }
