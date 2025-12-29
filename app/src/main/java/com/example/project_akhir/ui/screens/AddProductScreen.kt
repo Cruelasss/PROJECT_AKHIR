@@ -129,6 +129,7 @@ fun AddProductScreen(onSuccess: () -> Unit) {
                                     title = title,
                                     description = description,
                                     price = price.toDoubleOrNull() ?: 0.0,
+                                    condition = condition,
                                     city_location = location,
                                     images = listOf(url.toString())
                                 )
