@@ -4,7 +4,8 @@ package com.example.project_akhir
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.example.project_akhir.ui.NavGraph
+
+import com.example.project_akhir.ui.screens.MainScreen
 import com.example.project_akhir.ui.theme.PROJECT_AKHIRTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +14,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             PROJECT_AKHIRTheme {
                 // NavGraph sekarang mengontrol semua layar Anda
-                NavGraph()
+                MainScreen()
             }
         }
     }
