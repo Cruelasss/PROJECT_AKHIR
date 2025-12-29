@@ -29,6 +29,9 @@ fun AddProductScreen(onSuccess: () -> Unit) {
     var title by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var condition by remember { mutableStateOf("Bekas") } // ENUM: Baru, Bekas, Rusak
+
     var imageUri by remember { mutableStateOf<Uri?>(null) }
 
     // State untuk Progress
