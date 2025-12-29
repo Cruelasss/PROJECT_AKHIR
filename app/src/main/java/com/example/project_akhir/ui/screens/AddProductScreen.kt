@@ -84,8 +84,8 @@ fun AddProductScreen(onSuccess: () -> Unit) {
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = {
-                        if (imageUri == null || title.isEmpty() || price.isEmpty()) {
-                            Toast.makeText(context, "Lengkapi data dan foto!", Toast.LENGTH_SHORT).show()
+                        if (imageBase64.isEmpty()) {
+                            Toast.makeText(context, "Pilih foto dulu!", Toast.LENGTH_SHORT).show()
                             return@Button
                         }
                         isLoading = true
