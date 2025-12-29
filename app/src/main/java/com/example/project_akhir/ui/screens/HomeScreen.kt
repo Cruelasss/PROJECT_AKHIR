@@ -196,55 +196,63 @@ fun HomeScreen(
 @Composable
 fun ProductGridItem(product: Product, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.padding(8.dp).fillMaxWidth().clickable { onClick() },
-        shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(2.dp)
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+            .clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column {
-            Box {
-                val bitmap = remember(product.images) {
-                    try {
-                        val imageString = product.images.firstOrNull()
-                        if (!imageString.isNullOrEmpty()) {
-                            val imageBytes = Base64.decode(imageString, Base64.DEFAULT)
-                            BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                        } else null
-                    } catch (e: Exception) { null }
-                }
+            // Logika Gambar (Base64)
+            val bitmap = remember(product.images) {
+                try {
+                    val imageString = product.images.firstOrNull()
+                    if (!imageString.isNullOrEmpty()) {
+                        val imageBytes = android.util.Base64.decode(imageString, android.util.Base64.DEFAULT)
+                        android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                    } else null
+                } catch (e: Exception) { null }
+            }
 
+            Box {
                 AsyncImage(
                     model = bitmap,
                     contentDescription = null,
-                    modifier = Modifier.fillMaxWidth().height(150.dp),
+                    modifier = Modifier.fillMaxWidth().height(140.dp),
                     contentScale = ContentScale.Crop
                 )
-
+                // Badge Kondisi
                 Surface(
-                    color = Color.Black.copy(alpha = 0.6f),
-                    modifier = Modifier.padding(4.dp).clip(RoundedCornerShape(4.dp))
+                    color = Color(0xFF002F34).copy(alpha = 0.8f),
+                    modifier = Modifier.padding(8.dp).clip(RoundedCornerShape(4.dp))
                 ) {
                     Text(
                         product.condition,
                         color = Color.White,
                         fontSize = 10.sp,
-                        modifier = Modifier.padding(4.dp, 2.dp)
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                     )
                 }
             }
-            Column(modifier = Modifier.padding(8.dp)) {
+
+            Column(modifier = Modifier.padding(12.dp)) {
+                // PERBAIKAN: Format harga agar tidak muncul 1.2E8
+                val formattedPrice = try {
+                    product.price.toDouble().let {
+                        java.text.NumberFormat.getCurrencyInstance(java.util.Locale("id", "ID")).format(it)
+                    }
+                } catch (e: Exception) { "Rp ${product.price}" }
+
                 Text(
-                    text = "Rp ${product.price}",
+                    text = formattedPrice,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     color = Color.Black
                 )
-                Text(text = product.title, maxLines = 1, fontSize = 13.sp)
-                Text(
-                    text = "📍 ${product.city_location}",
-                    fontSize = 10.sp,
-                    color = Color.Gray,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
+                Text(text = product.title, maxLines = 1, fontSize = 14.sp)
+                Text(text = "📍 ${product.city_location}", fontSize = 11.sp, color = Color.Gray)
             }
         }
     }
