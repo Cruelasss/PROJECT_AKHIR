@@ -36,9 +36,14 @@ fun AddProductScreen(onSuccess: () -> Unit) {
     var imageBase64 by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
 
+    // Launcher untuk tetap bisa pilih file dari Explorer
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? -> imageUri = uri }
+    ) { uri: Uri? ->
+        uri?.let {
+            // Ubah gambar jadi Base64 agar tidak butuh Firebase Storage
+            val inputStream = context.contentResolver.openInputStream(it)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
 
     Scaffold(topBar = { TopAppBar(title = { Text("Pasang Iklan BekasinAja") }) }) { innerPadding ->
         Column(modifier = Modifier
