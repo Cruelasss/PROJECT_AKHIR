@@ -1,16 +1,21 @@
 package com.example.project_akhir.ui.screens
 
+import android.graphics.BitmapFactory
+import android.util.Base64
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.project_akhir.model.Product
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObjects
@@ -19,14 +24,14 @@ import com.google.firebase.firestore.toObjects
 @Composable
 fun HomeScreen(
     onAddProductClick: () -> Unit,
-    onProductClick: (String) -> Unit, // Parameter baru untuk ke Detail
-    onProfileClick: () -> Unit        // Parameter baru untuk ke Profil
+    onProductClick: (String) -> Unit, // Parameter navigasi ke detail
+    onProfileClick: () -> Unit        // Parameter navigasi ke profil
 ) {
     val db = FirebaseFirestore.getInstance()
     var productList by remember { mutableStateOf(listOf<Product>()) }
 
-    // Mengambil data real-time dari Firestore koleksi products
     LaunchedEffect(Unit) {
+        // Ambil data real-time sesuai relasi tabel Items (C.2)
         db.collection("products").addSnapshotListener { snapshot, _ ->
             if (snapshot != null) {
                 productList = snapshot.toObjects<Product>()
@@ -37,9 +42,8 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("BekasinAja - Katalog") },
+                title = { Text("BekasinAja") },
                 actions = {
-                    // Tombol untuk membuka profil (Sesuai RAT C.1)
                     IconButton(onClick = onProfileClick) {
                         Icon(Icons.Default.Person, contentDescription = "Profil")
                     }
@@ -52,16 +56,18 @@ fun HomeScreen(
             }
         }
     ) { innerPadding ->
-        LazyColumn(
+        // Menggunakan Grid 2 Kolom agar tampilan lebih menarik
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(productList) { product ->
-                // Membungkus item dengan clickable agar bisa navigasi ke detail
-                ProductItem(
+                ProductGridItem(
                     product = product,
                     onClick = { onProductClick(product.productId) }
                 )
@@ -71,26 +77,45 @@ fun HomeScreen(
 }
 
 @Composable
-fun ProductItem(product: Product, onClick: () -> Unit) {
+fun ProductGridItem(product: Product, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }, // Menangani klik pada kartu barang
+            .clickable { onClick() },
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Menampilkan Title
-            Text(text = product.title, style = MaterialTheme.typography.titleLarge)
+        Column {
+            // LOGIKA DECODE BASE64: Menampilkan foto yang disimpan di Firestore
+            val bitmap = remember(product.images) {
+                try {
+                    val imageString = product.images.firstOrNull()
+                    if (!imageString.isNullOrEmpty()) {
+                        val imageBytes = Base64.decode(imageString, Base64.DEFAULT)
+                        BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                    } else null
+                } catch (e: Exception) {
+                    null
+                }
+            }
 
-            // Menampilkan Harga dengan warna tema utama
-            Text(
-                text = "Rp ${product.price}",
-                color = MaterialTheme.colorScheme.primary
+            AsyncImage(
+                model = bitmap,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp),
+                contentScale = ContentScale.Crop
             )
 
-            // Menampilkan Lokasi & Kondisi sesuai format RAT
-            Text(text = "📍 ${product.city_location}", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "Kondisi: ${product.condition}", style = MaterialTheme.typography.bodySmall)
+            Column(modifier = Modifier.padding(8.dp)) {
+                Text(text = product.title, style = MaterialTheme.typography.titleMedium, maxLines = 1)
+                Text(
+                    text = "Rp ${product.price}",
+                    color = MaterialTheme.colorScheme.primary, //
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Text(text = product.city_location, style = MaterialTheme.typography.bodySmall)
+            }
         }
     }
 }
