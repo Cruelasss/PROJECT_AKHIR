@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -43,18 +45,19 @@ fun HomeScreen(
     var searchQuery by remember { mutableStateOf("") }
     var selectedLocation by remember { mutableStateOf("Semua") }
 
+    // State untuk Banner Promo
+    val pagerState = rememberPagerState(pageCount = { 3 })
+
     LaunchedEffect(Unit) {
         db.collection("products").addSnapshotListener { snapshot, _ ->
             if (snapshot != null) productList = snapshot.toObjects<Product>()
         }
     }
 
-    // Mendapatkan daftar lokasi unik untuk tombol filter
     val locations = remember(productList) {
         listOf("Semua") + productList.map { it.city_location }.distinct().sorted()
     }
 
-    // Logika Filtering Produk
     val filteredProducts = productList.filter { product ->
         val matchesSearch = product.title.contains(searchQuery, ignoreCase = true)
         val matchesLocation = if (selectedLocation == "Semua") true
@@ -65,14 +68,14 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             Column(modifier = Modifier.background(MaterialTheme.colorScheme.primary).padding(bottom = 8.dp)) {
-                // Baris Atas: Icon Lokasi Aktif
+                // Header Lokasi & Notifikasi
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(16.dp, 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color.White)
                     Text(
-                        text = selectedLocation, // Menampilkan lokasi yang sedang dipilih
+                        text = selectedLocation,
                         color = Color.White,
                         modifier = Modifier.padding(start = 8.dp),
                         fontWeight = FontWeight.Bold
@@ -100,24 +103,36 @@ fun HomeScreen(
                     singleLine = true
                 )
             }
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = onAddProductClick,
-                icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                text = { Text("JUAL") },
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                shape = CircleShape
-            )
-        },
-        floatingActionButtonPosition = FabPosition.Center
+        }
     ) { innerPadding ->
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier.fillMaxSize().padding(innerPadding),
-            contentPadding = PaddingValues(bottom = 80.dp)
+            contentPadding = PaddingValues(bottom = 16.dp)
         ) {
-            // 1. Filter Lokasi (Horizontal Chips) menggantikan Promo
+            // 1. Banner Promo (Carousel)
+            item(span = { GridItemSpan(2) }) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxWidth().height(160.dp).padding(16.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.secondaryContainer)
+                    ) {
+                        Text(
+                            "DISKON AKHIR TAHUN BEKASINAJA",
+                            modifier = Modifier.align(Alignment.Center),
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
+                }
+            }
+
+            // 2. Filter Lokasi (Horizontal Chips)
             item(span = { GridItemSpan(2) }) {
                 ScrollableTabRow(
                     selectedTabIndex = locations.indexOf(selectedLocation),
@@ -137,7 +152,7 @@ fun HomeScreen(
                 }
             }
 
-            // 2. Kategori Ikon
+            // 3. Kategori Ikon
             item(span = { GridItemSpan(2) }) {
                 val categories = listOf("Mobil", "Properti", "Motor", "Jasa", "Elektronik")
                 LazyRow(
@@ -167,7 +182,7 @@ fun HomeScreen(
                 }
             }
 
-            // 3. Grid Produk
+            // 4. Grid Produk
             items(filteredProducts) { product ->
                 ProductGridItem(
                     product = product,
@@ -204,7 +219,6 @@ fun ProductGridItem(product: Product, onClick: () -> Unit) {
                     contentScale = ContentScale.Crop
                 )
 
-                // Badge Kondisi
                 Surface(
                     color = Color.Black.copy(alpha = 0.6f),
                     modifier = Modifier.padding(4.dp).clip(RoundedCornerShape(4.dp))
@@ -221,10 +235,10 @@ fun ProductGridItem(product: Product, onClick: () -> Unit) {
                 Text(
                     text = "Rp ${product.price}",
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
+                    fontSize = 15.sp,
                     color = Color.Black
                 )
-                Text(text = product.title, maxLines = 1, fontSize = 14.sp)
+                Text(text = product.title, maxLines = 1, fontSize = 13.sp)
                 Text(
                     text = "📍 ${product.city_location}",
                     fontSize = 10.sp,
