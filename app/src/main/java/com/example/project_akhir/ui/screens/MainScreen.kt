@@ -1,6 +1,9 @@
 package com.example.project_akhir.ui.screens
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -10,99 +13,93 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.project_akhir.ui.navigation.NavGraph
-
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-
-    // State untuk memantau rute aktif secara otomatis
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    val hideBottomBarRoutes = listOf("splash", "onboarding", "auth")
+    val shouldShowBottomBar = currentRoute !in hideBottomBarRoutes
+
     Scaffold(
         bottomBar = {
-            // Container navigasi bawah
-            BottomAppBar(
-                containerColor = Color.White,
-                tonalElevation = 8.dp,
-                actions = {
-                    // Tombol HOME
-                    NavigationBarItem(
-                        selected = currentRoute == "home",
-                        onClick = {
-                            navController.navigate("home") {
-                                popUpTo("home") { inclusive = true }
-                            }
-                        },
-                        icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                        label = { Text("Home") }
-                    )
+            if (shouldShowBottomBar) {
+                // Gunakan Surface untuk memberikan bayangan halus pada bar bawah
+                Surface(
+                    tonalElevation = 8.dp,
+                    shadowElevation = 10.dp,
+                    color = Color.White
+                ) {
+                    NavigationBar(
+                        containerColor = Color.White,
+                        modifier = Modifier.height(80.dp) // Bar dibuat lebih tinggi agar teks aman
+                    ) {
+                        // 1. HOME
+                        NavigationBarItem(
+                            selected = currentRoute == "home",
+                            onClick = { navController.navigate("home") },
+                            icon = { Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(26.dp)) },
+                            label = { Text("Home", fontWeight = FontWeight.Medium) }
+                        )
 
-                    // Tombol PESAN (Placeholder)
-                    NavigationBarItem(
-                        selected = currentRoute == "messages",
-                        onClick = { /* Implementasi nanti jika ada */ },
-                        icon = { Icon(Icons.Default.Email, contentDescription = "Pesan") },
-                        label = { Text("Pesan") }
-                    )
+                        // 2. SPACER ADAPTIF (Memberikan celah agar tombol Jual tidak menabrak label)
+                        // Kita gunakan dua spacer kecil di kiri-kanan tombol tengah
+                        Spacer(modifier = Modifier.weight(0.5f))
 
-                    // Memberikan ruang untuk tombol JUAL di tengah
-                    Spacer(modifier = Modifier.weight(1f))
+                        // Ruang kosong utama untuk FAB
+                        Box(modifier = Modifier.weight(1f))
 
-                    // Tombol IKLAN SAYA
-                    NavigationBarItem(
-                        selected = currentRoute == "my_ads",
-                        onClick = {
-                            navController.navigate("my_ads") {
-                                launchSingleTop = true
-                            }
-                        },
-                        icon = { Icon(Icons.Default.List, contentDescription = "Iklan Saya") },
-                        label = { Text("Iklan Saya") }
-                    )
+                        Spacer(modifier = Modifier.weight(0.5f))
 
-                    // Tombol AKUN
-                    NavigationBarItem(
-                        selected = currentRoute == "profile",
-                        onClick = {
-                            navController.navigate("profile") {
-                                launchSingleTop = true
-                            }
-                        },
-                        icon = { Icon(Icons.Default.Person, contentDescription = "Akun") },
-                        label = { Text("Akun") }
-                    )
+                        // 3. IKLAN
+                        NavigationBarItem(
+                            selected = currentRoute == "my_ads",
+                            onClick = { navController.navigate("my_ads") },
+                            icon = { Icon(Icons.Default.List, contentDescription = null, modifier = Modifier.size(26.dp)) },
+                            label = { Text("Iklan", fontWeight = FontWeight.Medium) }
+                        )
+
+                        // 4. AKUN
+                        NavigationBarItem(
+                            selected = currentRoute == "profile",
+                            onClick = { navController.navigate("profile") },
+                            icon = { Icon(Icons.Default.Person, contentDescription = null, modifier = Modifier.size(26.dp)) },
+                            label = { Text("Akun", fontWeight = FontWeight.Medium) }
+                        )
+                    }
                 }
-            )
+            }
         },
         floatingActionButton = {
-            // Tombol JUAL yang menonjol di tengah
-            LargeFloatingActionButton(
-                onClick = { navController.navigate("add_product") },
-                containerColor = MaterialTheme.colorScheme.primary,
-                shape = CircleShape,
-                modifier = Modifier
-                    .size(65.dp)
-                    .offset(y = 50.dp)
-            ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = "Jual",
-                    tint = Color.White,
-                    modifier = Modifier.size(35.dp)
-                )
+            if (shouldShowBottomBar) {
+                // Tombol JUAL yang proporsional
+                FloatingActionButton(
+                    onClick = { navController.navigate("add_product") },
+                    containerColor = Color(0xFF002F34),
+                    shape = CircleShape,
+                    modifier = Modifier
+                        .size(68.dp) // Ukuran optimal agar tidak "gak rapi"
+                        .offset(y = 45.dp) // Menurunkan posisi agar melayang pas di tengah bar
+                        .border(4.dp, Color.White, CircleShape) // Ring putih agar kontras dan rapi
+                ) {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = "Jual",
+                        tint = Color.White,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
             }
         },
         floatingActionButtonPosition = FabPosition.Center
     ) { innerPadding ->
-        // Menghubungkan NavController ke NavGraph agar navigasi sinkron
-        NavGraph(
-            navController = navController,
-            paddingValues = innerPadding
-        )
+        NavGraph(navController = navController, paddingValues = innerPadding)
     }
 }
