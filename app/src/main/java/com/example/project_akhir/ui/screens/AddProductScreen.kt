@@ -52,6 +52,8 @@ fun AddProductScreen(onSuccess: () -> Unit) {
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+
+            // Field: Title
             OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("Nama Barang") }, modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(value = price, onValueChange = { price = it }, label = { Text("Harga") }, modifier = Modifier.fillMaxWidth())
