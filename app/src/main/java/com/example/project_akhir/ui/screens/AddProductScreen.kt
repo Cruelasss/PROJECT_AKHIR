@@ -118,15 +118,16 @@ fun AddProductScreen(onSuccess: () -> Unit) {
                             uploadProgress = progress.toFloat()
                         }.addOnSuccessListener {
                             storageRef.downloadUrl.addOnSuccessListener { url ->
-                                // Simpan ke Firestore setelah upload selesai
                                 val uid = FirebaseAuth.getInstance().currentUser?.uid
                                 val db = FirebaseFirestore.getInstance()
                                 val productId = db.collection("products").document().id
 
+                                // Mapping Lengkap sesuai RAT
                                 val product = Product(
                                     productId = productId,
                                     sellerId = uid ?: "",
                                     title = title,
+                                    description = description,
                                     price = price.toDoubleOrNull() ?: 0.0,
                                     city_location = location,
                                     images = listOf(url.toString())
