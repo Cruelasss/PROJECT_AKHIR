@@ -14,16 +14,35 @@ import com.example.project_akhir.ui.screens.*
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    paddingValues: PaddingValues, // Penting agar konten tidak tertutup Bottom Bar
-    startDestination: String = "auth"
+    paddingValues: PaddingValues,
+    startDestination: String = "splash"
 ) {
     NavHost(
         navController = navController,
         startDestination = startDestination,
-        modifier = Modifier.padding(paddingValues) // Menerapkan padding dari Scaffold utama
+        // Modifier padding memastikan konten tidak tertutup Bottom Bar
+        modifier = Modifier.padding(paddingValues)
     ) {
 
-        // 1. Layar Login & Daftar
+        // 1. Splash Screen (Animasi Logo)
+        composable("splash") {
+            SplashScreen(onTimeout = {
+                navController.navigate("onboarding") {
+                    popUpTo("splash") { inclusive = true }
+                }
+            })
+        }
+
+        // 2. Onboarding Screen (Slider Sambutan)
+        composable("onboarding") {
+            OnboardingScreen(onFinish = {
+                navController.navigate("auth") {
+                    popUpTo("onboarding") { inclusive = true }
+                }
+            })
+        }
+
+        // 3. Layar Login & Daftar (Auth)
         composable("auth") {
             AuthScreen(onLoginSuccess = {
                 navController.navigate("home") {
@@ -32,53 +51,57 @@ fun NavGraph(
             })
         }
 
-        // 2. Layar Katalog Utama (Grid, Search, & Banner)
+        // 4. Layar Katalog Utama (Grid, Search, & Filter)
         composable("home") {
             HomeScreen(
-                onAddProductClick = {
-                    navController.navigate("add_product")
-                },
-                onProductClick = { productId ->
-                    // Navigasi ke detail dengan membawa ID produk
-                    navController.navigate("detail/$productId")
-                },
-                onProfileClick = {
-                    navController.navigate("profile")
-                }
+                onAddProductClick = { navController.navigate("add_product") },
+                onProductClick = { id -> navController.navigate("detail/$id") },
+                onProfileClick = { navController.navigate("profile") }
             )
         }
 
-        // 3. Layar Tambah Barang (Menggunakan Logika Base64 - Tanpa Storage)
+        // 5. Layar Tambah Barang (Logika Base64)
         composable("add_product") {
             AddProductScreen(onSuccess = {
                 navController.popBackStack()
             })
         }
 
-        // 4. Layar Detail Produk (Menampilkan Gambar Base64 & Tombol WA)
+        // 6. Layar Detail Produk (WhatsApp & Deskripsi)
         composable(
             route = "detail/{productId}",
             arguments = listOf(navArgument("productId") { type = NavType.StringType })
         ) { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId") ?: ""
-            ProductDetailScreen(productId = productId) //
+            ProductDetailScreen(productId = productId)
         }
 
-        // 5. Layar Profil Pengguna (Sesuai RAT C.1)
+        // 7. Layar Profil Pengguna
         composable("profile") {
             ProfileScreen(
                 onLogout = {
                     navController.navigate("auth") {
-                        popUpTo(0)
+                        popUpTo(0) // Clear history setelah logout
                     }
+                },
+                // Navigasi ke halaman edit profil yang baru
+                onEditProfileClick = {
+                    navController.navigate("edit_profile")
                 }
             )
         }
 
-        // 6. Layar Iklan Saya (Opsional - Jika Anda ingin menambahkannya nanti)
+        // 8. Layar Edit Profil (Fungsi Baru)
+        composable("edit_profile") {
+            EditProfileScreen(onBack = {
+                navController.popBackStack()
+            })
+        }
+
+        // 9. Layar Iklan Saya (Manajemen & Hapus)
         composable("my_ads") {
-            MyAdsScreen(onProductClick = { productId ->
-                navController.navigate("detail/$productId")
+            MyAdsScreen(onProductClick = { id ->
+                navController.navigate("detail/$id")
             })
         }
     }
