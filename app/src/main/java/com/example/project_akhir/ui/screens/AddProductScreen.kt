@@ -67,40 +67,19 @@ fun AddProductScreen(onSuccess: () -> Unit) {
             // Pilihan Kondisi sesuai RAT
             Text("Kondisi:", modifier = Modifier.padding(top = 8.dp))
             Row {
-                options.forEach { text ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(end = 8.dp).selectable(
-                            selected = (condition == text),
-                            onClick = { condition = text }
-                        )
-                    ) {
-                        RadioButton(selected = (condition == text), onClick = { condition = text })
-                        Text(text = text)
-                    }
+                listOf("Baru", "Bekas").forEach { item ->
+                    RadioButton(selected = (condition == item), onClick = { condition = item })
+                    Text(item, modifier = Modifier.padding(top = 12.dp, end = 8.dp))
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
 
-            // Field: City Location
-            OutlinedTextField(value = location, onValueChange = { location = it }, label = { Text("Lokasi (Kota)") }, modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Field: Description
-            OutlinedTextField(
-                value = description,
-                onValueChange = { description = it },
-                label = { Text("Deskripsi Barang") },
-                modifier = Modifier.fillMaxWidth().height(120.dp)
-            )
+            OutlinedTextField(value = location, onValueChange = { location = it }, label = { Text("Lokasi") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("Deskripsi") }, modifier = Modifier.fillMaxWidth().height(100.dp))
 
             Spacer(modifier = Modifier.height(24.dp))
 
             if (isLoading) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    LinearProgressIndicator(progress = { uploadProgress }, modifier = Modifier.fillMaxWidth())
-                    Text(text = "Mengunggah: ${(uploadProgress * 100).toInt()}%")
-                }
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
             } else {
                 Button(
                     modifier = Modifier.fillMaxWidth(),
