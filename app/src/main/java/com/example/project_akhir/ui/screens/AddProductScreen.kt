@@ -56,7 +56,42 @@ fun AddProductScreen(onSuccess: () -> Unit) {
             // Field: Title
             OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("Nama Barang") }, modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(value = price, onValueChange = { price = it }, label = { Text("Harga") }, modifier = Modifier.fillMaxWidth())
+
+            // Field: Price
+            OutlinedTextField(value = price, onValueChange = { price = it }, label = { Text("Harga (Rp)") }, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Field: Condition (ENUM Baru, Bekas, Rusak)
+            Text("Kondisi Barang:", style = MaterialTheme.typography.bodyMedium)
+            val options = listOf("Baru", "Bekas", "Rusak")
+            Row {
+                options.forEach { text ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(end = 8.dp).selectable(
+                            selected = (condition == text),
+                            onClick = { condition = text }
+                        )
+                    ) {
+                        RadioButton(selected = (condition == text), onClick = { condition = text })
+                        Text(text = text)
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Field: City Location
+            OutlinedTextField(value = location, onValueChange = { location = it }, label = { Text("Lokasi (Kota)") }, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Field: Description
+            OutlinedTextField(
+                value = description,
+                onValueChange = { description = it },
+                label = { Text("Deskripsi Barang") },
+                modifier = Modifier.fillMaxWidth().height(120.dp)
+            )
+
             Spacer(modifier = Modifier.height(24.dp))
 
             if (isLoading) {
