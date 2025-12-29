@@ -101,16 +101,11 @@ fun AddProductScreen(onSuccess: () -> Unit) {
                             images = listOf(imageBase64) // Simpan teks Base64 ke Firestore
                         )
 
-                                db.collection("products").document(productId).set(product)
-                                    .addOnSuccessListener {
-                                        isLoading = false
-                                        onSuccess()
-                                    }
+                        db.collection("products").document(productId).set(product)
+                            .addOnSuccessListener {
+                                isLoading = false
+                                onSuccess()
                             }
-                        }.addOnFailureListener {
-                            isLoading = false
-                            Toast.makeText(context, "Gagal: ${it.message}", Toast.LENGTH_SHORT).show()
-                        }
                     }
                 ) {
                     Text("Pasang Iklan Sekarang")
