@@ -2,20 +2,30 @@ package com.example.project_akhir.ui.screens
 
 import android.graphics.BitmapFactory
 import android.util.Base64
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan // Perbaikan Import
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.project_akhir.model.Product
 import com.google.firebase.firestore.FirebaseFirestore
@@ -25,102 +35,136 @@ import com.google.firebase.firestore.toObjects
 @Composable
 fun HomeScreen(
     onAddProductClick: () -> Unit,
-    onProductClick: (String) -> Unit, // Navigasi ke Detail
-    onProfileClick: () -> Unit        // Navigasi ke Profil
+    onProductClick: (String) -> Unit,
+    onProfileClick: () -> Unit
 ) {
     val db = FirebaseFirestore.getInstance()
     var productList by remember { mutableStateOf(listOf<Product>()) }
-
-    // State untuk Fitur Pencarian dan Filter
     var searchQuery by remember { mutableStateOf("") }
-    var selectedLocation by remember { mutableStateOf("Semua Lokasi") }
 
-    // Ambil data real-time dari Firestore
+    // State untuk Banner Carousel
+    val pagerState = rememberPagerState(pageCount = { 3 })
+
     LaunchedEffect(Unit) {
         db.collection("products").addSnapshotListener { snapshot, _ ->
-            if (snapshot != null) {
-                productList = snapshot.toObjects<Product>()
-            }
+            if (snapshot != null) productList = snapshot.toObjects<Product>()
         }
     }
 
-    // Logika Filter: Menyaring produk berdasarkan judul dan lokasi
-    val filteredProducts = productList.filter { product ->
-        val matchesSearch = product.title.contains(searchQuery, ignoreCase = true)
-        val matchesLocation = if (selectedLocation == "Semua Lokasi") true
-        else product.city_location.equals(selectedLocation, ignoreCase = true)
-        matchesSearch && matchesLocation
-    }
-
-    // Mendapatkan daftar lokasi unik dari database untuk tombol filter
-    val locations = remember(productList) {
-        listOf("Semua Lokasi") + productList.map { it.city_location }.distinct().sorted()
-    }
+    val filteredProducts = productList.filter { it.title.contains(searchQuery, ignoreCase = true) }
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("BekasinAja") },
-                actions = {
+            Column(modifier = Modifier.background(MaterialTheme.colorScheme.primary).padding(bottom = 8.dp)) {
+                // Header Lokasi
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp, 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color.White)
+                    Text(
+                        "Jakarta Selatan",
+                        color = Color.White,
+                        modifier = Modifier.padding(start = 8.dp),
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
                     IconButton(onClick = onProfileClick) {
-                        Icon(Icons.Default.Person, contentDescription = "Profil")
+                        Icon(Icons.Default.Notifications, tint = Color.White, contentDescription = null)
                     }
                 }
-            )
+
+                // Search Bar Modern
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = { Text("Temukan Mobil, Handphone...") },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(50.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    )
+                )
+            }
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddProductClick) {
-                Icon(Icons.Default.Add, contentDescription = "Tambah")
-            }
-        }
-    ) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
-
-            // 1. Bar Pencarian
-            OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp, 8.dp),
-                placeholder = { Text("Cari barang bekas...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                shape = MaterialTheme.shapes.medium,
-                singleLine = true
+            // Tombol Jual yang menonjol
+            ExtendedFloatingActionButton(
+                onClick = onAddProductClick,
+                icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                text = { Text("JUAL") },
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                shape = CircleShape
             )
-
-            // 2. Filter Lokasi (Horizontal Scrollable Chips)
-            ScrollableTabRow(
-                selectedTabIndex = locations.indexOf(selectedLocation),
-                edgePadding = 16.dp,
-                containerColor = androidx.compose.ui.graphics.Color.Transparent,
-                divider = {},
-                indicator = {}
-            ) {
-                locations.forEach { location ->
-                    FilterChip(
-                        selected = selectedLocation == location,
-                        onClick = { selectedLocation = location },
-                        label = { Text(location) },
-                        modifier = Modifier.padding(horizontal = 4.dp)
-                    )
+        },
+        floatingActionButtonPosition = FabPosition.Center
+    ) { innerPadding ->
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier.fillMaxSize().padding(innerPadding),
+            contentPadding = PaddingValues(bottom = 80.dp)
+        ) {
+            // 1. Banner Carousel - Perbaikan span
+            item(span = { GridItemSpan(2) }) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxWidth().height(160.dp).padding(16.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color.LightGray)
+                    ) {
+                        Text(
+                            "PROMO AKHIR TAHUN",
+                            modifier = Modifier.align(Alignment.Center),
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
                 }
             }
 
-            // 3. Grid Katalog Produk
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(filteredProducts) { product ->
-                    ProductGridItem(
-                        product = product,
-                        onClick = { onProductClick(product.productId) }
-                    )
+            // 2. Kategori Ikon
+            item(span = { GridItemSpan(2) }) {
+                val categories = listOf("Mobil", "Properti", "Motor", "Jasa", "Elektronik")
+                LazyRow(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp)
+                ) {
+                    items(categories) { cat ->
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(end = 20.dp)
+                        ) {
+                            Surface(
+                                shape = CircleShape,
+                                color = Color(0xFFE3F2FD),
+                                modifier = Modifier.size(50.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.List,
+                                    contentDescription = null,
+                                    modifier = Modifier.padding(12.dp),
+                                    tint = Color(0xFF1976D2)
+                                )
+                            }
+                            Text(cat, fontSize = 11.sp, modifier = Modifier.padding(top = 4.dp))
+                        }
+                    }
                 }
+            }
+
+            // 3. Grid Produk
+            items(filteredProducts) { product ->
+                ProductGridItem(
+                    product = product,
+                    onClick = { onProductClick(product.productId) }
+                )
             }
         }
     }
@@ -129,49 +173,56 @@ fun HomeScreen(
 @Composable
 fun ProductGridItem(product: Product, onClick: () -> Unit) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(4.dp)
+        modifier = Modifier.padding(8.dp).fillMaxWidth().clickable { onClick() },
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column {
-            // DECODE BASE64: Mengubah string teks kembali menjadi gambar
-            val bitmap = remember(product.images) {
-                try {
-                    val imageString = product.images.firstOrNull()
-                    if (!imageString.isNullOrEmpty()) {
-                        val imageBytes = Base64.decode(imageString, Base64.DEFAULT)
-                        BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                    } else null
-                } catch (e: Exception) {
-                    null
+            Box {
+                // Decode Base64 untuk menampilkan gambar tanpa Storage
+                val bitmap = remember(product.images) {
+                    try {
+                        val imageString = product.images.firstOrNull()
+                        if (!imageString.isNullOrEmpty()) {
+                            val imageBytes = Base64.decode(imageString, Base64.DEFAULT)
+                            BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                        } else null
+                    } catch (e: Exception) { null }
+                }
+
+                AsyncImage(
+                    model = bitmap,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxWidth().height(120.dp),
+                    contentScale = ContentScale.Crop
+                )
+
+                // Badge Kondisi
+                Surface(
+                    color = Color.Black.copy(alpha = 0.6f),
+                    modifier = Modifier.padding(4.dp).clip(RoundedCornerShape(4.dp))
+                ) {
+                    Text(
+                        product.condition,
+                        color = Color.White,
+                        fontSize = 10.sp,
+                        modifier = Modifier.padding(4.dp, 2.dp)
+                    )
                 }
             }
-
-            AsyncImage(
-                model = bitmap,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp),
-                contentScale = ContentScale.Crop
-            )
-
             Column(modifier = Modifier.padding(8.dp)) {
                 Text(
-                    text = product.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1
-                )
-                Text(
                     text = "Rp ${product.price}",
-                    color = MaterialTheme.colorScheme.primary, //
-                    style = MaterialTheme.typography.bodyLarge
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = Color.Black
                 )
-                // Menampilkan lokasi sesuai tabel Items (C.2)
+                Text(text = product.title, maxLines = 1, fontSize = 14.sp)
                 Text(
                     text = "📍 ${product.city_location}",
-                    style = MaterialTheme.typography.bodySmall
+                    fontSize = 10.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(top = 4.dp)
                 )
             }
         }
