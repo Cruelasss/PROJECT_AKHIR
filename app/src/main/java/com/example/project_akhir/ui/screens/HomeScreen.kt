@@ -44,6 +44,19 @@ fun HomeScreen(
         }
     }
 
+    // Logika Filter: Menyaring produk berdasarkan judul dan lokasi
+    val filteredProducts = productList.filter { product ->
+        val matchesSearch = product.title.contains(searchQuery, ignoreCase = true)
+        val matchesLocation = if (selectedLocation == "Semua Lokasi") true
+        else product.city_location.equals(selectedLocation, ignoreCase = true)
+        matchesSearch && matchesLocation
+    }
+
+    // Mendapatkan daftar lokasi unik dari database untuk tombol filter
+    val locations = remember(productList) {
+        listOf("Semua Lokasi") + productList.map { it.city_location }.distinct().sorted()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
