@@ -33,8 +33,6 @@ fun AddProductScreen(onSuccess: () -> Unit) {
     var condition by remember { mutableStateOf("Bekas") } // ENUM: Baru, Bekas, Rusak
 
     var imageUri by remember { mutableStateOf<Uri?>(null) }
-
-    // State untuk Progress
     var uploadProgress by remember { mutableFloatStateOf(0f) }
     var isLoading by remember { mutableStateOf(false) }
 
