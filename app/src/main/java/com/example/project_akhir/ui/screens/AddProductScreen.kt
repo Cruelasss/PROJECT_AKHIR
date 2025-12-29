@@ -45,30 +45,27 @@ fun AddProductScreen(onSuccess: () -> Unit) {
             val inputStream = context.contentResolver.openInputStream(it)
             val bitmap = BitmapFactory.decodeStream(inputStream)
 
-    Scaffold(topBar = { TopAppBar(title = { Text("Pasang Iklan BekasinAja") }) }) { innerPadding ->
-        Column(modifier = Modifier
-            .padding(innerPadding)
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())
-        ) {
-            // Pemilihan File
-            Button(onClick = { launcher.launch("*/*") }) {
-                Text(if (imageUri == null) "Pilih File dari Explorer" else "File Terpilih")
+            // Kompres gambar agar tidak melebihi limit Firestore (1MB)
+            val outputStream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream)
+            val byteArray = outputStream.toByteArray()
+            imageBase64 = Base64.encodeToString(byteArray, Base64.DEFAULT)
+            Toast.makeText(context, "Foto berhasil diproses", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    Scaffold(topBar = { TopAppBar(title = { Text("Pasang Iklan (Tanpa Storage)") }) }) { padding ->
+        Column(modifier = Modifier.padding(padding).padding(16.dp).verticalScroll(rememberScrollState())) {
+            Button(onClick = { launcher.launch("image/*") }) {
+                Text(if (imageBase64.isEmpty()) "Pilih Foto dari HP" else "Foto Siap di-Upload")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
-            // Field: Title
             OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("Nama Barang") }, modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(value = price, onValueChange = { price = it }, label = { Text("Harga") }, modifier = Modifier.fillMaxWidth())
 
-            // Field: Price
-            OutlinedTextField(value = price, onValueChange = { price = it }, label = { Text("Harga (Rp)") }, modifier = Modifier.fillMaxWidth())
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Field: Condition (ENUM Baru, Bekas, Rusak)
-            Text("Kondisi Barang:", style = MaterialTheme.typography.bodyMedium)
-            val options = listOf("Baru", "Bekas", "Rusak")
+            // Pilihan Kondisi sesuai RAT
+            Text("Kondisi:", modifier = Modifier.padding(top = 8.dp))
             Row {
                 options.forEach { text ->
                     Row(
