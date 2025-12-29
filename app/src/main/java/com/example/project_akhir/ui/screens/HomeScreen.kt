@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -24,14 +25,18 @@ import com.google.firebase.firestore.toObjects
 @Composable
 fun HomeScreen(
     onAddProductClick: () -> Unit,
-    onProductClick: (String) -> Unit, // Parameter navigasi ke detail
-    onProfileClick: () -> Unit        // Parameter navigasi ke profil
+    onProductClick: (String) -> Unit, // Navigasi ke Detail
+    onProfileClick: () -> Unit        // Navigasi ke Profil
 ) {
     val db = FirebaseFirestore.getInstance()
     var productList by remember { mutableStateOf(listOf<Product>()) }
 
+    // State untuk Fitur Pencarian dan Filter
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedLocation by remember { mutableStateOf("Semua Lokasi") }
+
+    // Ambil data real-time dari Firestore
     LaunchedEffect(Unit) {
-        // Ambil data real-time sesuai relasi tabel Items (C.2)
         db.collection("products").addSnapshotListener { snapshot, _ ->
             if (snapshot != null) {
                 productList = snapshot.toObjects<Product>()
