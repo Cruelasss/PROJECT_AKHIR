@@ -168,7 +168,11 @@ fun ProductGridItem(product: Product, onClick: () -> Unit) {
                     color = MaterialTheme.colorScheme.primary, //
                     style = MaterialTheme.typography.bodyLarge
                 )
-                Text(text = product.city_location, style = MaterialTheme.typography.bodySmall)
+                // Menampilkan lokasi sesuai tabel Items (C.2)
+                Text(
+                    text = "📍 ${product.city_location}",
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
     }
