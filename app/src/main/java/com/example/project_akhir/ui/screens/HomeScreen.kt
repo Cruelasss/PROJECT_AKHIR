@@ -6,12 +6,10 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan // Perbaikan Import
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -40,10 +38,10 @@ fun HomeScreen(
 ) {
     val db = FirebaseFirestore.getInstance()
     var productList by remember { mutableStateOf(listOf<Product>()) }
-    var searchQuery by remember { mutableStateOf("") }
 
-    // State untuk Banner Carousel
-    val pagerState = rememberPagerState(pageCount = { 3 })
+    // State untuk Pencarian dan Filter Lokasi
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedLocation by remember { mutableStateOf("Semua") }
 
     LaunchedEffect(Unit) {
         db.collection("products").addSnapshotListener { snapshot, _ ->
@@ -51,19 +49,30 @@ fun HomeScreen(
         }
     }
 
-    val filteredProducts = productList.filter { it.title.contains(searchQuery, ignoreCase = true) }
+    // Mendapatkan daftar lokasi unik untuk tombol filter
+    val locations = remember(productList) {
+        listOf("Semua") + productList.map { it.city_location }.distinct().sorted()
+    }
+
+    // Logika Filtering Produk
+    val filteredProducts = productList.filter { product ->
+        val matchesSearch = product.title.contains(searchQuery, ignoreCase = true)
+        val matchesLocation = if (selectedLocation == "Semua") true
+        else product.city_location.equals(selectedLocation, ignoreCase = true)
+        matchesSearch && matchesLocation
+    }
 
     Scaffold(
         topBar = {
             Column(modifier = Modifier.background(MaterialTheme.colorScheme.primary).padding(bottom = 8.dp)) {
-                // Header Lokasi
+                // Baris Atas: Icon Lokasi Aktif
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(16.dp, 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color.White)
                     Text(
-                        "Jakarta Selatan",
+                        text = selectedLocation, // Menampilkan lokasi yang sedang dipilih
                         color = Color.White,
                         modifier = Modifier.padding(start = 8.dp),
                         fontWeight = FontWeight.Bold
@@ -87,12 +96,12 @@ fun HomeScreen(
                         unfocusedContainerColor = Color.White,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent
-                    )
+                    ),
+                    singleLine = true
                 )
             }
         },
         floatingActionButton = {
-            // Tombol Jual yang menonjol
             ExtendedFloatingActionButton(
                 onClick = onAddProductClick,
                 icon = { Icon(Icons.Default.Add, contentDescription = null) },
@@ -108,22 +117,21 @@ fun HomeScreen(
             modifier = Modifier.fillMaxSize().padding(innerPadding),
             contentPadding = PaddingValues(bottom = 80.dp)
         ) {
-            // 1. Banner Carousel - Perbaikan span
+            // 1. Filter Lokasi (Horizontal Chips) menggantikan Promo
             item(span = { GridItemSpan(2) }) {
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.fillMaxWidth().height(160.dp).padding(16.dp)
+                ScrollableTabRow(
+                    selectedTabIndex = locations.indexOf(selectedLocation),
+                    edgePadding = 16.dp,
+                    containerColor = Color.Transparent,
+                    divider = {},
+                    indicator = {}
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Color.LightGray)
-                    ) {
-                        Text(
-                            "PROMO AKHIR TAHUN",
-                            modifier = Modifier.align(Alignment.Center),
-                            fontWeight = FontWeight.ExtraBold
+                    locations.forEach { location ->
+                        FilterChip(
+                            selected = selectedLocation == location,
+                            onClick = { selectedLocation = location },
+                            label = { Text(location) },
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp)
                         )
                     }
                 }
@@ -179,7 +187,6 @@ fun ProductGridItem(product: Product, onClick: () -> Unit) {
     ) {
         Column {
             Box {
-                // Decode Base64 untuk menampilkan gambar tanpa Storage
                 val bitmap = remember(product.images) {
                     try {
                         val imageString = product.images.firstOrNull()
@@ -193,7 +200,7 @@ fun ProductGridItem(product: Product, onClick: () -> Unit) {
                 AsyncImage(
                     model = bitmap,
                     contentDescription = null,
-                    modifier = Modifier.fillMaxWidth().height(120.dp),
+                    modifier = Modifier.fillMaxWidth().height(150.dp),
                     contentScale = ContentScale.Crop
                 )
 
