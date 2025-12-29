@@ -25,7 +25,7 @@ fun HomeScreen(
     val db = FirebaseFirestore.getInstance()
     var productList by remember { mutableStateOf(listOf<Product>()) }
 
-    // Mengambil data real-time dari Firestore
+    // Mengambil data real-time dari Firestore koleksi products
     LaunchedEffect(Unit) {
         db.collection("products").addSnapshotListener { snapshot, _ ->
             if (snapshot != null) {
