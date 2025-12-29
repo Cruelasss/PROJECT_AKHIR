@@ -26,16 +26,14 @@ import java.util.UUID
 @Composable
 fun AddProductScreen(onSuccess: () -> Unit) {
     val context = LocalContext.current
+    val db = FirebaseFirestore.getInstance()
 
-    // State Input sesuai Tabel Items (C.2) di RAT
     var title by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var condition by remember { mutableStateOf("Bekas") } // ENUM: Baru, Bekas, Rusak
-
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var uploadProgress by remember { mutableFloatStateOf(0f) }
+    var condition by remember { mutableStateOf("Bekas") }
+    var imageBase64 by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
 
     val launcher = rememberLauncherForActivityResult(
