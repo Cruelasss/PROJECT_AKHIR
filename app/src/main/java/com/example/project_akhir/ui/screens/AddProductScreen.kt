@@ -24,6 +24,8 @@ import java.util.UUID
 @Composable
 fun AddProductScreen(onSuccess: () -> Unit) {
     val context = LocalContext.current
+
+    // State Input sesuai Tabel Items (C.2) di RAT
     var title by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
