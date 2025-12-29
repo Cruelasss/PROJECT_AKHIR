@@ -135,7 +135,7 @@ fun ProductGridItem(product: Product, onClick: () -> Unit) {
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column {
-            // LOGIKA DECODE BASE64: Menampilkan foto yang disimpan di Firestore
+            // DECODE BASE64: Mengubah string teks kembali menjadi gambar
             val bitmap = remember(product.images) {
                 try {
                     val imageString = product.images.firstOrNull()
@@ -158,7 +158,11 @@ fun ProductGridItem(product: Product, onClick: () -> Unit) {
             )
 
             Column(modifier = Modifier.padding(8.dp)) {
-                Text(text = product.title, style = MaterialTheme.typography.titleMedium, maxLines = 1)
+                Text(
+                    text = product.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1
+                )
                 Text(
                     text = "Rp ${product.price}",
                     color = MaterialTheme.colorScheme.primary, //
