@@ -95,12 +95,8 @@ fun AddProductScreen(onSuccess: () -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
 
             if (isLoading) {
-                // Menampilkan Progress Bar dan Teks Persentase
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    LinearProgressIndicator(
-                        progress = { uploadProgress },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    LinearProgressIndicator(progress = { uploadProgress }, modifier = Modifier.fillMaxWidth())
                     Text(text = "Mengunggah: ${(uploadProgress * 100).toInt()}%")
                 }
             } else {
