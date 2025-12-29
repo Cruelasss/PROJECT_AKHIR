@@ -111,12 +111,9 @@ fun AddProductScreen(onSuccess: () -> Unit) {
 
                         // Upload ke Firebase Storage
                         val storageRef = FirebaseStorage.getInstance().reference.child("images/${UUID.randomUUID()}")
-
-                        // Memulai upload dengan Task Listener
                         val uploadTask = storageRef.putFile(imageUri!!)
 
                         uploadTask.addOnProgressListener { taskSnapshot ->
-                            // Menghitung persentase
                             val progress = (1.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount)
                             uploadProgress = progress.toFloat()
                         }.addOnSuccessListener {
