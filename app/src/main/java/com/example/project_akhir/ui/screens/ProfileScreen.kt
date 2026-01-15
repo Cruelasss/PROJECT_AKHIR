@@ -1,4 +1,4 @@
-package com.example.project_akhir.ui.screens
+package com.example.project_akhir.view.screens
 
 import android.content.Intent
 import android.net.Uri

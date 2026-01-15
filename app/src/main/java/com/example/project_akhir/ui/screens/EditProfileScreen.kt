@@ -1,4 +1,4 @@
-package com.example.project_akhir.ui.screens
+package com.example.project_akhir.view.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*

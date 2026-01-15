@@ -15,10 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.project_akhir.ui.navigation.NavGraph
+import com.example.project_akhir.ui.NavGraph
+
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()

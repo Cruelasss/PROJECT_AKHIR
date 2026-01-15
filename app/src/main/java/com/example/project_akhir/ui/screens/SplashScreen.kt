@@ -1,4 +1,4 @@
-package com.example.project_akhir.ui.screens
+package com.example.project_akhir.view.screens
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -30,7 +30,7 @@ fun SplashScreen(onTimeout: () -> Unit) {
             targetValue = 1f,
             animationSpec = tween(durationMillis = 800)
         )
-        delay(1500) // Tampilan logo selama 1.5 detik
+        delay(3000) // Tampilan logo selama 1.5 detik
         onTimeout()
     }
 
