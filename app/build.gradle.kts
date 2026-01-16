@@ -17,6 +17,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary = true
+        }
     }
 
     buildTypes {
@@ -38,41 +41,60 @@ android {
     buildFeatures {
         compose = true
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.10"
+    }
 }
 
 dependencies {
-    // UI Dasar & Compose
+    // --- 1. CORE & UI DASAR ---
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-// ... inside dependencies block
     implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-// ...
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
+    // --- 2. COMPOSE BOM & UI ---
+    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
 
-    // Autentikasi & Kredensial (Google Sign-In)
-    implementation(libs.androidx.credentials)
-    implementation(libs.androidx.credentials.play.services.auth)
-    implementation(libs.googleid)
+    // Material Icons (untuk icon WhatsApp)
+    implementation("androidx.compose.material:material-icons-extended:1.6.7")
 
-    implementation("androidx.navigation:navigation-compose:2.8.5")
-    implementation("com.google.firebase:firebase-storage-ktx")
-
-    // --- FIREBASE SECTION (Gunakan BoM agar versi seragam) ---
+    // --- 3. FIREBASE SECTION ---
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
 
-    // Image Loading & Navigation
-    implementation("io.coil-kt:coil-compose:2.7.0")
+    // --- 4. NAVIGATION & IMAGE LOADING ---
     implementation("androidx.navigation:navigation-compose:2.8.5")
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
-    // Testing
+    // --- 5. ACCOMPANIST (Pager untuk image slider) ---
+    implementation("com.google.accompanist:accompanist-pager:0.33.2-alpha")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.33.2-alpha")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.33.2-alpha")
+    implementation("com.google.accompanist:accompanist-permissions:0.33.2-alpha")
+
+    // --- 6. AUTHENTICATION & CREDENTIALS ---
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+
+    // --- 7. UTILITIES ---
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
+    implementation(libs.androidx.compose.foundation)
+
+    // --- 8. TESTING ---
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -80,15 +102,4 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
-
-    // Panggil library tanpa versi (karena sudah diatur BoM)
-    implementation("com.google.firebase:firebase-auth")
-    implementation("com.google.firebase:firebase-firestore")
-    implementation("com.google.firebase:firebase-storage")
-
-    // Image Loading & Navigation
-    implementation("io.coil-kt:coil-compose:2.7.0")
-    implementation("androidx.navigation:navigation-compose:2.8.5")
 }
