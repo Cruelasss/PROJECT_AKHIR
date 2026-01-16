@@ -13,7 +13,7 @@ import com.example.project_akhir.ui.screens.*
 import com.example.project_akhir.ui.screens.AddProductScreen
 import com.example.project_akhir.view.screens.EditProfileScreen
 import com.example.project_akhir.view.screens.HomeScreen
-import com.example.project_akhir.view.screens.MyAdsScreen
+import com.example.project_akhir.ui.screens.MyAdsScreen
 import com.example.project_akhir.ui.screens.ProductDetailScreen
 import com.example.project_akhir.view.screens.ProfileScreen
 import com.example.project_akhir.view.screens.SplashScreen
@@ -27,11 +27,10 @@ fun NavGraph(
     NavHost(
         navController = navController,
         startDestination = startDestination,
-        // Modifier padding memastikan konten tidak tertutup Bottom Bar
         modifier = Modifier.padding(paddingValues)
     ) {
 
-        // 1. Splash Screen (Animasi Logo)
+        // 1. Splash Screen
         composable("splash") {
             SplashScreen(onTimeout = {
                 navController.navigate("onboarding") {
@@ -40,7 +39,7 @@ fun NavGraph(
             })
         }
 
-        // 2. Onboarding Screen (Slider Sambutan)
+        // 2. Onboarding Screen
         composable("onboarding") {
             OnboardingScreen(onFinish = {
                 navController.navigate("auth") {
@@ -49,7 +48,7 @@ fun NavGraph(
             })
         }
 
-        // 3. Layar Login & Daftar (Auth)
+        // 3. Layar Auth
         composable("auth") {
             AuthScreen(onLoginSuccess = {
                 navController.navigate("home") {
@@ -58,7 +57,7 @@ fun NavGraph(
             })
         }
 
-        // 4. Layar Katalog Utama (Grid, Search, & Filter)
+        // 4. Layar Home
         composable("home") {
             HomeScreen(
                 onAddProductClick = { navController.navigate("add_product") },
@@ -67,54 +66,60 @@ fun NavGraph(
             )
         }
 
-        // 5. Layar Tambah Barang (Logika Base64)
+        // 5. Layar Tambah Barang
         composable("add_product") {
             AddProductScreen(onSuccess = {
                 navController.popBackStack()
             })
         }
-        // 6. Layar Detail Produk
+
+        // 6. Layar Detail Produk (DIPERBAIKI)
         composable(
             route = "detail/{productId}",
             arguments = listOf(navArgument("productId") { type = NavType.StringType })
         ) { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId") ?: ""
-
-            // PERBAIKAN: Masukkan parameter yang dibutuhkan oleh fungsi terbaru
             ProductDetailScreen(
                 productId = productId,
+                navController = navController, // Ditambahkan untuk logika login WhatsApp
                 onNavigateToEdit = { id -> navController.navigate("edit_product/$id") },
                 onBack = { navController.popBackStack() }
             )
         }
 
-        // 7. Layar Profil Pengguna
-        composable("profile") {
-            ProfileScreen(
-                onLogout = {
-                    navController.navigate("auth") {
-                        popUpTo(0) // Clear history setelah logout
-                    }
-                },
-                // Navigasi ke halaman edit profil yang baru
-                onEditProfileClick = {
-                    navController.navigate("edit_profile")
-                }
+        // 7. Layar Edit Produk (WAJIB DITAMBAHKAN AGAR TIDAK ERROR)
+        composable(
+            route = "edit_product/{productId}",
+            arguments = listOf(navArgument("productId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId") ?: ""
+            EditProductScreen(
+                productId = productId,
+                onSuccess = { navController.popBackStack() }
             )
         }
 
-        // 8. Layar Edit Profil (Fungsi Baru)
-        composable("edit_profile") {
-            EditProfileScreen(onBack = {
-                navController.popBackStack()
-            })
+        // 8. Layar Profil Pengguna
+        composable("profile") {
+            ProfileScreen(
+                onLogout = {
+                    navController.navigate("auth") { popUpTo(0) }
+                },
+                onEditProfileClick = { navController.navigate("edit_profile") }
+            )
         }
 
-        // 9. Layar Iklan Saya (Manajemen & Hapus)
+        // 9. Layar Edit Profil
+        composable("edit_profile") {
+            EditProfileScreen(onBack = { navController.popBackStack() })
+        }
+
+        // 10. Layar Iklan Saya (DIPERBAIKI)
         composable("my_ads") {
-            MyAdsScreen(onProductClick = { id ->
-                navController.navigate("detail/$id")
-            })
+            MyAdsScreen(
+                onProductClick = { id -> navController.navigate("detail/$id") },
+                onEditClick = { id -> navController.navigate("edit_product/$id") }
+            )
         }
     }
 }

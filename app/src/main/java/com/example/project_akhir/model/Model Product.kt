@@ -4,7 +4,8 @@ package com.example.project_akhir.model
 data class Product(
     val productId: String = "",
     val sellerId: String = "",
-    val sellerName: String = "", // Tambahan: Menampilkan siapa yang upload
+    val sellerName: String = "",
+    val whatsappNumber: String = "",// Tambahan: Menampilkan siapa yang upload
     val title: String = "",
     val description: String = "",
     val price: Double = 0.0,
